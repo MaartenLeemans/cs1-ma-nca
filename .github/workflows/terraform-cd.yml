@@ -19,9 +19,20 @@ jobs:
           Get-ChildItem "$env:GITHUB_WORKSPACE\env"
           Get-ChildItem "$env:GITHUB_WORKSPACE\env\dev"
 
-      - name: Check AWS identity
+      - name: Debug AWS environment
         shell: powershell
         run: |
+          Write-Host "USERNAME = $env:USERNAME"
+          Write-Host "USERPROFILE = $env:USERPROFILE"
+          Write-Host "AWS_PROFILE = $env:AWS_PROFILE"
+          Write-Host "AWS_DEFAULT_REGION = $env:AWS_DEFAULT_REGION"
+          Write-Host "Checking credentials file..."
+          if (Test-Path "$env:USERPROFILE\.aws\credentials") {
+            Write-Host "Credentials file exists"
+            Get-Content "$env:USERPROFILE\.aws\credentials"
+          } else {
+            Write-Host "No credentials file found"
+          }
           aws sts get-caller-identity
           aws configure get region
 
@@ -31,19 +42,29 @@ jobs:
       - name: Terraform Init
         shell: powershell
         working-directory: ${{ github.workspace }}/env/dev
-        run: terraform init
+        run: terraform init -reconfigure -input=false
 
       - name: Terraform Plan
         shell: powershell
         working-directory: ${{ github.workspace }}/env/dev
-        run: terraform plan -out=tfplan
+        run: terraform plan -input=false -no-color -out=tfplan
 
       - name: Terraform Show Plan
         shell: powershell
         working-directory: ${{ github.workspace }}/env/dev
-        run: terraform show tfplan
+        run: terraform show -no-color tfplan
+
+      - name: Terraform State List Before Apply
+        shell: powershell
+        working-directory: ${{ github.workspace }}/env/dev
+        run: terraform state list
 
       - name: Terraform Apply
         shell: powershell
         working-directory: ${{ github.workspace }}/env/dev
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply -input=false -auto-approve tfplan
+
+      - name: Terraform State List After Apply
+        shell: powershell
+        working-directory: ${{ github.workspace }}/env/dev
+        run: terraform state list
