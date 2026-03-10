@@ -19,23 +19,6 @@ jobs:
           Get-ChildItem "$env:GITHUB_WORKSPACE\env"
           Get-ChildItem "$env:GITHUB_WORKSPACE\env\dev"
 
-      - name: Debug AWS environment
-        shell: powershell
-        run: |
-          Write-Host "USERNAME = $env:USERNAME"
-          Write-Host "USERPROFILE = $env:USERPROFILE"
-          Write-Host "AWS_PROFILE = $env:AWS_PROFILE"
-          Write-Host "AWS_DEFAULT_REGION = $env:AWS_DEFAULT_REGION"
-          Write-Host "Checking credentials file..."
-          if (Test-Path "$env:USERPROFILE\.aws\credentials") {
-            Write-Host "Credentials file exists"
-            Get-Content "$env:USERPROFILE\.aws\credentials"
-          } else {
-            Write-Host "No credentials file found"
-          }
-          aws sts get-caller-identity
-          aws configure get region
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
@@ -53,11 +36,6 @@ jobs:
         shell: powershell
         working-directory: ${{ github.workspace }}/env/dev
         run: terraform show -no-color tfplan
-
-      - name: Terraform State List Before Apply
-        shell: powershell
-        working-directory: ${{ github.workspace }}/env/dev
-        run: terraform state list
 
       - name: Terraform Apply
         shell: powershell
