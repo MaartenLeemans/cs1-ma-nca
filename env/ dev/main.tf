@@ -14,7 +14,7 @@ module "computer" {
 }
 
 module "database" {
-  source          = "../../terraform/modules/database"
+  source = "../../terraform/modules/database"
 
   vpc_id          = module.network.vpc_id
   db_subnet_ids   = module.network.db_subnet_ids
@@ -23,4 +23,16 @@ module "database" {
 
   db_username = var.db_username
   db_password = var.db_password
+}
+
+module "monitoring" {
+  source = "../../terraform/modules/monitoring"
+
+  vpc_id    = module.network.vpc_id
+  subnet_id = module.network.public_subnet_ids[0]
+
+  allowed_ssh_cidr  = "145.93.64.145/32"
+  allowed_http_cidr = "145.93.64.145/32" # wordt nu alleen nog voor SSH gebruikt in SG
+
+  onprem_target = ""
 }
