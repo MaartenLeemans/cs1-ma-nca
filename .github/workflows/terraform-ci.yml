@@ -12,7 +12,7 @@ jobs:
     defaults:
       run:
         shell: powershell
-        working-directory: env/dev
+        working-directory: ./env/dev
 
     steps:
 
