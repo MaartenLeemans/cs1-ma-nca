@@ -7,22 +7,37 @@ jobs:
   terraform-apply:
     runs-on: self-hosted
 
-    defaults:
-      run:
-        working-directory: env/dev
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Debug workspace
+        shell: powershell
+        run: |
+          Write-Host "GITHUB_WORKSPACE = $env:GITHUB_WORKSPACE"
+          Get-ChildItem $env:GITHUB_WORKSPACE
+          Get-ChildItem "$env:GITHUB_WORKSPACE\env"
+          Get-ChildItem "$env:GITHUB_WORKSPACE\env\dev"
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
+        shell: powershell
+        working-directory: ${{ github.workspace }}/env/dev
         run: terraform init
 
       - name: Terraform Plan
+        shell: powershell
+        working-directory: ${{ github.workspace }}/env/dev
         run: terraform plan -out=tfplan
 
+      - name: Terraform Show Plan
+        shell: powershell
+        working-directory: ${{ github.workspace }}/env/dev
+        run: terraform show tfplan
+
       - name: Terraform Apply
+        shell: powershell
+        working-directory: ${{ github.workspace }}/env/dev
         run: terraform apply -auto-approve tfplan
