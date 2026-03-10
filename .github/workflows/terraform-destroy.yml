@@ -7,10 +7,6 @@ jobs:
   terraform-destroy:
     runs-on: self-hosted
 
-    defaults:
-      run:
-        working-directory: env/dev
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -19,7 +15,11 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
+        shell: powershell
+        working-directory: ${{ github.workspace }}/env/dev
         run: terraform init
 
       - name: Terraform Destroy
+        shell: powershell
+        working-directory: ${{ github.workspace }}/env/dev
         run: terraform destroy -auto-approve
