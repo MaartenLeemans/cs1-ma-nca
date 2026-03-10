@@ -11,9 +11,11 @@ jobs:
 
     defaults:
       run:
+        shell: powershell
         working-directory: env/dev
 
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -24,7 +26,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Format Check
-        run: terraform fmt -check -recursive
+        run: terraform fmt -check
 
       - name: Terraform Validate
         run: terraform validate
