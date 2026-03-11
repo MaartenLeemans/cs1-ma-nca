@@ -8,8 +8,8 @@ jobs:
     runs-on: self-hosted
 
     env:
-      TF_VAR_db_username: ${{ secrets.TF_VAR_DB_USERNAME }}
-      TF_VAR_db_password: ${{ secrets.TF_VAR_DB_PASSWORD }}
+      TF_VAR_db_username: ${{ secrets.TF_VAR_db_username }}
+      TF_VAR_db_password: ${{ secrets.TF_VAR_db_password }}
 
     steps:
       - name: Checkout repository
@@ -17,22 +17,29 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-
-      - name: Go to Terraform environment
-        run: cd env/dev
+        with:
+          terraform_wrapper: false
 
       - name: Terraform Init
-        working-directory: ./env/dev
-        run: terraform init -reconfigure
+        shell: powershell
+        run: terraform -chdir=env/dev init -reconfigure -input=false
 
       - name: Terraform Plan
-        working-directory: ./env/dev
-        run: terraform plan -out=tfplan
+        shell: powershell
+        run: terraform -chdir=env/dev plan -input=false -no-color -out=tfplan
+
+      - name: Terraform Show Plan
+        shell: powershell
+        run: terraform -chdir=env/dev show -no-color tfplan
 
       - name: Terraform Apply
-        working-directory: ./env/dev
-        run: terraform apply -auto-approve tfplan
+        shell: powershell
+        run: terraform -chdir=env/dev apply -input=false -auto-approve tfplan
 
-      - name: Terraform State
-        working-directory: ./env/dev
-        run: terraform state list
+      - name: Terraform State List After Apply
+        shell: powershell
+        run: terraform -chdir=env/dev state list
+
+      - name: Terraform Output After Apply
+        shell: powershell
+        run: terraform -chdir=env/dev output
