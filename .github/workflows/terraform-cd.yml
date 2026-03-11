@@ -6,9 +6,10 @@ on:
 jobs:
   terraform-apply:
     runs-on: self-hosted
+
     env:
-      TF_VAR_db_username: ${{ secrets.TF_VAR_db_USERNAME }}
-      TF_VAR_db_password: ${{ secrets.TF_VAR_db_PASSWORD }}
+      TF_VAR_db_username: ${{ secrets.TF_VAR_DB_USERNAME }}
+      TF_VAR_db_password: ${{ secrets.TF_VAR_DB_PASSWORD }}
 
     steps:
       - name: Checkout repository
@@ -17,32 +18,21 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Go to Terraform environment
+        run: cd env/dev
+
       - name: Terraform Init
-        shell: powershell
-        working-directory: ${{ github.workspace }}/env/dev
-        run: terraform init -reconfigure -input=false
+        working-directory: ./env/dev
+        run: terraform init -reconfigure
 
       - name: Terraform Plan
-        shell: powershell
-        working-directory: ${{ github.workspace }}/env/dev
-        run: terraform plan -input=false -no-color -out=tfplan
-
-      - name: Terraform Show Plan
-        shell: powershell
-        working-directory: ${{ github.workspace }}/env/dev
-        run: terraform show -no-color tfplan
+        working-directory: ./env/dev
+        run: terraform plan -out=tfplan
 
       - name: Terraform Apply
-        shell: powershell
-        working-directory: ${{ github.workspace }}/env/dev
-        run: terraform apply -input=false -auto-approve tfplan
+        working-directory: ./env/dev
+        run: terraform apply -auto-approve tfplan
 
-      - name: Terraform State List After Apply
-        shell: powershell
-        working-directory: ${{ github.workspace }}/env/dev
+      - name: Terraform State
+        working-directory: ./env/dev
         run: terraform state list
-
-      - name: Terraform Outputs After Apply
-        shell: powershell
-        working-directory: ${{ github.workspace }}/env/dev
-        run: terraform output
